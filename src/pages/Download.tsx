@@ -3,37 +3,35 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import FileDownloader from "@/components/FileDownloader";
 import { useToast } from "@/hooks/use-toast";
+import { getFileInfo, verifyFilePin } from "@/lib/fileService";
+import { FileShare } from "@/lib/types";
 
 const Download = () => {
   const { fileId } = useParams<{ fileId: string }>();
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [fileInfo, setFileInfo] = useState({
-    fileName: "",
-    fileSize: 0,
-    pinCode: "",
-    downloadUrl: "",
-  });
+  const [fileInfo, setFileInfo] = useState<FileShare | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real implementation with Supabase, you would fetch the file info from Supabase here
-    // For now, we'll just simulate the fetch with a timeout
     const fetchFileInfo = async () => {
+      if (!fileId) return;
+      
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoading(true);
+        const info = await getFileInfo(fileId);
         
-        // Simulate file data
-        // In a real app, this would come from Supabase
-        setFileInfo({
-          fileName: "sample-document.pdf",
-          fileSize: 2.5 * 1024 * 1024, // 2.5MB
-          pinCode: "123456", // In a real app, this would be stored securely
-          downloadUrl: "#", // In a real app, this would be a Supabase URL
-        });
-        
-        setLoading(false);
+        if (info) {
+          setFileInfo(info);
+        } else {
+          toast({
+            title: "Error",
+            description: "Could not find the requested file",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
         console.error("Error fetching file:", error);
         toast({
@@ -41,6 +39,8 @@ const Download = () => {
           description: "Could not find the requested file",
           variant: "destructive",
         });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -50,15 +50,16 @@ const Download = () => {
   }, [fileId, toast]);
 
   const handlePinSubmit = async (enteredPin: string) => {
+    if (!fileId) return;
+    
     setVerifying(true);
     
     try {
-      // In a real implementation, you would verify the PIN against Supabase
-      // For now, we'll just simulate the verification with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await verifyFilePin(fileId, enteredPin);
       
-      if (enteredPin === fileInfo.pinCode) {
+      if (result.verified) {
         setVerified(true);
+        setDownloadUrl(result.downloadUrl);
         toast({
           title: "PIN verified",
           description: "You can now download the file",
@@ -104,10 +105,10 @@ const Download = () => {
         ) : (
           <FileDownloader
             fileId={fileId || ""}
-            fileName={fileInfo.fileName}
-            fileSize={fileInfo.fileSize}
-            pinCode={fileInfo.pinCode}
-            downloadUrl={fileInfo.downloadUrl}
+            fileName={fileInfo?.original_name || "Unknown file"}
+            fileSize={fileInfo?.size_bytes || 0}
+            pinCode={fileInfo?.pin_code || ""}
+            downloadUrl={downloadUrl || ""}
             onPinSubmit={handlePinSubmit}
             loading={verifying}
             verified={verified}

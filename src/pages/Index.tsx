@@ -3,16 +3,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import FileUploader from "@/components/FileUploader";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
-import { generatePinCode, generateFileId } from "@/lib/fileUtils";
+import { uploadFile } from "@/lib/fileService";
 import { useToast } from "@/hooks/use-toast";
+import { FileUploadResponse } from "@/lib/types";
 
 const Index = () => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [fileId, setFileId] = useState("");
-  const [pinCode, setPinCode] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
+  const [uploadResponse, setUploadResponse] = useState<FileUploadResponse | null>(null);
   const { toast } = useToast();
 
   const handleFileSelected = (selectedFile: File) => {
@@ -26,26 +25,14 @@ const Index = () => {
     setUploading(true);
     
     try {
-      // In a real implementation with Supabase, you would upload the file to Supabase storage here
-      // For now, we'll just simulate the upload with a timeout
       toast({
         title: "Uploading file...",
         description: "Please wait while we upload your file",
       });
       
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await uploadFile(file);
       
-      // Generate a unique file ID and PIN code
-      const newFileId = generateFileId();
-      const newPinCode = generatePinCode();
-      
-      setFileId(newFileId);
-      setPinCode(newPinCode);
-      
-      // Create the download URL
-      const newDownloadUrl = `${window.location.origin}/download/${newFileId}`;
-      setDownloadUrl(newDownloadUrl);
-      
+      setUploadResponse(response);
       setUploaded(true);
       
       toast({
@@ -67,9 +54,7 @@ const Index = () => {
   const handleReset = () => {
     setFile(null);
     setUploaded(false);
-    setFileId("");
-    setPinCode("");
-    setDownloadUrl("");
+    setUploadResponse(null);
   };
 
   return (
@@ -108,9 +93,12 @@ const Index = () => {
                 </Button>
               )}
             </>
-          ) : (
+          ) : uploadResponse && (
             <>
-              <QRCodeDisplay downloadUrl={downloadUrl} pinCode={pinCode} />
+              <QRCodeDisplay 
+                downloadUrl={uploadResponse.downloadUrl} 
+                pinCode={uploadResponse.pinCode} 
+              />
               
               <Button
                 onClick={handleReset}

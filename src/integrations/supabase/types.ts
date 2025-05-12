@@ -9,66 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      file_uploads: {
+      file_shares: {
         Row: {
+          content_type: string
           created_at: string
           download_count: number
           expires_at: string
           id: string
           original_name: string
+          pin_code: string
           size_bytes: number
-          storage_object_path: string
+          storage_path: string
         }
         Insert: {
+          content_type: string
           created_at?: string
           download_count?: number
-          expires_at: string
+          expires_at?: string
           id?: string
           original_name: string
+          pin_code: string
           size_bytes: number
-          storage_object_path: string
+          storage_path: string
         }
         Update: {
+          content_type?: string
           created_at?: string
           download_count?: number
           expires_at?: string
           id?: string
           original_name?: string
+          pin_code?: string
           size_bytes?: number
-          storage_object_path?: string
-        }
-        Relationships: []
-      }
-      files: {
-        Row: {
-          created_at: string | null
-          expires_at: string | null
-          id: string
-          name: string
-          path: string
-          public_url: string
-          size: number
-          type: string
-        }
-        Insert: {
-          created_at?: string | null
-          expires_at?: string | null
-          id: string
-          name: string
-          path: string
-          public_url: string
-          size: number
-          type: string
-        }
-        Update: {
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          name?: string
-          path?: string
-          public_url?: string
-          size?: number
-          type?: string
+          storage_path?: string
         }
         Relationships: []
       }
@@ -78,7 +51,7 @@ export type Database = {
     }
     Functions: {
       increment_download_count: {
-        Args: { row_id: string }
+        Args: { file_id: string }
         Returns: undefined
       }
     }
