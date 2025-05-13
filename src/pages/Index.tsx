@@ -1,11 +1,13 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import FileUploader from "@/components/FileUploader";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
 import { uploadFile } from "@/lib/fileService";
 import { useToast } from "@/hooks/use-toast";
 import { FileUploadResponse } from "@/lib/types";
+import { QrCode, Download } from "lucide-react";
 
 const Index = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -69,13 +71,24 @@ const Index = () => {
       </header>
       
       <main className="flex-1 container mx-auto flex flex-col items-center justify-center px-4 py-6">
-        <div className="text-center mb-8 max-w-md">
+        <div className="text-center mb-6 max-w-md">
           <h1 className="text-4xl font-bold mb-3 bg-gradient-to-br from-ezy-purple to-ezy-darkPurple bg-clip-text text-transparent">
             Share files with ease
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             Upload any file (up to 25MB) and share it instantly with a QR code and PIN
           </p>
+          
+          {!uploaded && (
+            <div className="flex justify-center gap-4">
+              <Link to="/" className={`px-4 py-2 rounded-full ${!file ? 'bg-ezy-purple text-white' : 'bg-white text-ezy-darkPurple border border-ezy-purple'}`}>
+                Upload
+              </Link>
+              <Link to="/receive" className="px-4 py-2 rounded-full bg-white text-ezy-darkPurple border border-ezy-purple">
+                Receive
+              </Link>
+            </div>
+          )}
         </div>
         
         <div className="w-full max-w-md space-y-6">
@@ -100,13 +113,25 @@ const Index = () => {
                 pinCode={uploadResponse.pinCode} 
               />
               
-              <Button
-                onClick={handleReset}
-                variant="outline"
-                className="w-full"
-              >
-                Upload Another File
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleReset}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Upload Another File
+                </Button>
+                
+                <Link to="/receive" className="flex-1">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Download className="mr-2 h-4 w-4 text-ezy-purple" />
+                    Receive Files
+                  </Button>
+                </Link>
+              </div>
             </>
           )}
         </div>

@@ -15,11 +15,14 @@ const QRCodeDisplay = ({ downloadUrl, pinCode }: QRCodeDisplayProps) => {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Create a URL that includes the PIN code
+  const directDownloadUrl = `${downloadUrl}?pin=${pinCode}`;
+
   useEffect(() => {
     if (canvasRef.current && downloadUrl) {
       QRCode.toCanvas(
         canvasRef.current,
-        downloadUrl,
+        directDownloadUrl,
         {
           width: 200,
           margin: 2,
@@ -33,7 +36,7 @@ const QRCodeDisplay = ({ downloadUrl, pinCode }: QRCodeDisplayProps) => {
         }
       );
     }
-  }, [downloadUrl]);
+  }, [directDownloadUrl]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -44,15 +47,18 @@ const QRCodeDisplay = ({ downloadUrl, pinCode }: QRCodeDisplayProps) => {
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md shadow-lg">
       <CardContent className="flex flex-col items-center pt-6">
         <div className="flex items-center justify-center mb-4">
           <QrCode className="mr-2 h-5 w-5 text-ezy-purple" />
           <h3 className="text-lg font-semibold">Share your file</h3>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-inner w-fit mx-auto">
+        <div className="bg-white p-4 rounded-lg shadow-inner w-fit mx-auto mb-2">
           <canvas ref={canvasRef} className="mx-auto" />
+          <p className="text-xs text-center text-gray-500 mt-2">
+            PIN included in QR code for direct download
+          </p>
         </div>
 
         <div className="mt-4 w-full">
@@ -96,10 +102,10 @@ const QRCodeDisplay = ({ downloadUrl, pinCode }: QRCodeDisplayProps) => {
           </div>
 
           <Button 
-            onClick={() => copyToClipboard(downloadUrl)} 
+            onClick={() => copyToClipboard(directDownloadUrl)} 
             className="w-full bg-ezy-purple hover:bg-ezy-darkPurple"
           >
-            <Copy className="mr-2 h-4 w-4" /> Copy Download Link
+            <Copy className="mr-2 h-4 w-4" /> Copy Direct Download Link
           </Button>
         </div>
       </CardContent>

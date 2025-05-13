@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import FileDownloader from "@/components/FileDownloader";
 import { useToast } from "@/hooks/use-toast";
 import { getFileInfo, verifyFilePin } from "@/lib/fileService";
@@ -8,6 +8,7 @@ import { FileShare } from "@/lib/types";
 
 const Download = () => {
   const { fileId } = useParams<{ fileId: string }>();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -25,6 +26,12 @@ const Download = () => {
         
         if (info) {
           setFileInfo(info);
+          
+          // Auto-verify if PIN is in URL
+          const pinFromUrl = searchParams.get("pin");
+          if (pinFromUrl && pinFromUrl.length === 6) {
+            handlePinSubmit(pinFromUrl);
+          }
         } else {
           toast({
             title: "Error",
@@ -47,7 +54,7 @@ const Download = () => {
     if (fileId) {
       fetchFileInfo();
     }
-  }, [fileId, toast]);
+  }, [fileId, searchParams, toast]);
 
   const handlePinSubmit = async (enteredPin: string) => {
     if (!fileId) return;

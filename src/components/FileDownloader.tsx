@@ -1,8 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { 
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot
+} from "@/components/ui/input-otp";
 import { Download, Lock, File as FileIcon } from "lucide-react";
 import { formatFileSize } from "@/lib/fileUtils";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +34,18 @@ const FileDownloader = ({
   verified,
 }: FileDownloaderProps) => {
   const [enteredPin, setEnteredPin] = useState("");
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Check for PIN in URL when component mounts
+  useEffect(() => {
+    const pinFromUrl = searchParams.get("pin");
+    
+    if (pinFromUrl && pinFromUrl.length === 6 && !verified) {
+      console.log("PIN found in URL, auto-verifying...");
+      onPinSubmit(pinFromUrl);
+    }
+  }, [searchParams, onPinSubmit, verified]);
 
   const handlePinSubmit = () => {
     if (enteredPin.length !== 6) {
@@ -55,7 +71,7 @@ const FileDownloader = ({
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md shadow-lg">
       <CardContent className="pt-6">
         <div className="flex items-center justify-center mb-6">
           <FileIcon className="mr-2 h-5 w-5 text-ezy-purple" />
@@ -84,15 +100,25 @@ const FileDownloader = ({
                 <Lock className="h-4 w-4 mr-1 text-ezy-purple" />
                 <span>Enter PIN code to download</span>
               </div>
-              <Input
-                type="text"
-                placeholder="6-digit PIN"
-                maxLength={6}
-                value={enteredPin}
-                onChange={(e) => setEnteredPin(e.target.value.replace(/\D/g, ''))}
-                className="text-center text-lg"
-              />
+              
+              <div className="flex justify-center mb-4">
+                <InputOTP 
+                  value={enteredPin} 
+                  onChange={setEnteredPin}
+                  maxLength={6}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
             </div>
+            
             <Button
               onClick={handlePinSubmit}
               className="w-full bg-ezy-purple hover:bg-ezy-darkPurple"
