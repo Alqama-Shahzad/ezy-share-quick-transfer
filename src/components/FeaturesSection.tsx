@@ -44,7 +44,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="bg-ezyshare-floralWhite py-16">
+    <section className="bg-ezyshare-floralWhite py-16" id="features">
       <div className="section-container">
         <h2 className="section-title text-center">Features That Make a Difference</h2>
         <p className="section-subtitle text-center">

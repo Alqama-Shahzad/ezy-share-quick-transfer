@@ -62,7 +62,9 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
   };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const removeFile = (e: React.MouseEvent) => {
@@ -77,7 +79,7 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
     <div className="w-full">
       <div
         className={`drop-area border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-          isDragging ? "border-ezy-purple bg-ezy-purple/5" : selectedFile ? "border-ezy-darkPurple/40" : "border-gray-200 hover:border-ezy-purple/50 hover:bg-ezy-purple/5"
+          isDragging ? "border-ezyshare-flame bg-ezyshare-flame/5" : selectedFile ? "border-ezyshare-flame/40" : "border-gray-200 hover:border-ezyshare-flame/50 hover:bg-ezyshare-flame/5"
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -93,8 +95,8 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
         
         {!selectedFile ? (
           <div className="flex flex-col items-center justify-center gap-3">
-            <div className="rounded-full bg-ezy-purple/10 p-3 transition-all group-hover:bg-ezy-purple/20">
-              <Upload className="h-6 w-6 text-ezy-purple" />
+            <div className="rounded-full bg-ezyshare-flame/10 p-3 transition-all group-hover:bg-ezyshare-flame/20">
+              <Upload className="h-6 w-6 text-ezyshare-flame" />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Upload your file</h3>
@@ -108,8 +110,8 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
         ) : (
           <div className="relative">
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-ezy-purple/20 p-2 flex-shrink-0">
-                <File className="h-5 w-5 text-ezy-purple" />
+              <div className="rounded-full bg-ezyshare-flame/20 p-2 flex-shrink-0">
+                <File className="h-5 w-5 text-ezyshare-flame" />
               </div>
               <div className="text-left">
                 <p className="font-medium truncate max-w-[200px] md:max-w-[300px]">{selectedFile.name}</p>
@@ -124,7 +126,7 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-ezy-purple mt-3">Click to change file</p>
+            <p className="text-xs text-ezyshare-flame mt-3">Click to change file</p>
           </div>
         )}
       </div>

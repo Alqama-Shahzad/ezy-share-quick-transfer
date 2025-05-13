@@ -22,11 +22,12 @@ import {
   InputOTPGroup,
   InputOTPSlot
 } from "@/components/ui/input-otp";
-import { Download, QrCode } from "lucide-react";
+import { Download, QrCode, Flame } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Link } from "react-router-dom";
 
 const formSchema = z.object({
   fileId: z.string().min(1, { message: "File ID is required" }),
@@ -69,21 +70,23 @@ const Receive = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-radial from-white to-ezy-gray flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-white via-ezyshare-timberwolf/10 to-ezyshare-timberwolf/20 flex flex-col">
       <header className="p-6 flex justify-center">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-ezy-purple rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">E</span>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="h-10 w-10 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all">
+            <Flame className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-ezy-darkBackground">EzyShare</h1>
-        </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-br from-ezyshare-flame to-orange-500 bg-clip-text text-transparent">
+            EzyShare
+          </h1>
+        </Link>
       </header>
       
       <main className="flex-1 container mx-auto flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
-              <Download className="h-5 w-5 text-ezy-purple" />
+              <Download className="h-5 w-5 text-ezyshare-flame" />
               <span>Receive a File</span>
             </CardTitle>
           </CardHeader>
@@ -135,7 +138,7 @@ const Receive = () => {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-ezy-purple hover:bg-ezy-darkPurple"
+                  className="w-full bg-ezyshare-flame hover:bg-ezyshare-flame/90 text-white"
                 >
                   <Download className="mr-2 h-4 w-4" />
                   {submitting ? "Processing..." : "Access File"}
@@ -151,9 +154,9 @@ const Receive = () => {
                   type="button"
                   variant="outline"
                   onClick={() => navigate("/")}
-                  className="w-full"
+                  className="w-full border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10"
                 >
-                  <QrCode className="mr-2 h-4 w-4 text-ezy-purple" />
+                  <QrCode className="mr-2 h-4 w-4" />
                   Upload a File
                 </Button>
               </form>
@@ -162,8 +165,9 @@ const Receive = () => {
         </Card>
       </main>
       
-      <footer className="py-4 text-center text-sm text-gray-500">
-        <p>&copy; 2025 EzyShare. All rights reserved.</p>
+      <footer className="py-6 text-center">
+        <p className="text-sm text-ezyshare-blackOlive mb-1">&copy; 2025 EzyShare. All rights reserved.</p>
+        <p className="text-xs text-ezyshare-flame">Created by Alqama-Dev</p>
       </footer>
     </div>
   );

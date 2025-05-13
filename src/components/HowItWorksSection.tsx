@@ -22,7 +22,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white py-16" id="how-it-works">
       <div className="section-container">
         <h2 className="section-title text-center">How It Works</h2>
         <p className="section-subtitle text-center">

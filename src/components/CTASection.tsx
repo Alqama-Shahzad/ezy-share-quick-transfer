@@ -17,6 +17,13 @@ const CTASection = () => {
         <div className="flex flex-wrap justify-center gap-4">
           <Link 
             to="/" 
+            onClick={(e) => {
+              e.preventDefault();
+              // Access the global file input reference
+              if (window.fileInputRef) {
+                window.fileInputRef.click();
+              }
+            }}
             className="px-8 py-4 bg-white text-ezyshare-eerieBlack rounded-full font-bold flex items-center gap-2 
               shadow-lg hover:shadow-xl hover:bg-ezyshare-floralWhite transition-all"
           >

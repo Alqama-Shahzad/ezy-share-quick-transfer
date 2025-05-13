@@ -1,11 +1,11 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FileIcon, Send, Download, Lock, Shield } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="bg-ezyshare-floralWhite py-12 lg:py-20">
+    <section className="bg-ezyshare-floralWhite py-12 lg:py-20" id="hero">
       <div className="section-container">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
           {/* Left content */}
@@ -23,6 +23,13 @@ const HeroSection = () => {
             <div className="flex flex-wrap gap-4 mb-8">
               <Link 
                 to="/" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Access the global file input reference
+                  if (window.fileInputRef) {
+                    window.fileInputRef.click();
+                  }
+                }}
                 className="px-6 py-3 rounded-full bg-ezyshare-flame text-white flex items-center gap-2 
                   shadow-lg hover:shadow-xl hover:bg-ezyshare-flame/90 transition-all"
               >

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileUploadResponse } from "@/lib/types";
 import { Flame, Download, Upload, Shield, Sparkles } from "lucide-react";
 
-// Import our new section components
+// Import our section components
 import HeroSection from "@/components/HeroSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -176,6 +177,12 @@ const Index = () => {
             </Link>
             <Link 
               to="/" 
+              onClick={(e) => { 
+                e.preventDefault();
+                if (fileInputRef && fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
               className="px-5 py-2 bg-ezyshare-flame text-white rounded-full flex items-center gap-1 hover:bg-ezyshare-flame/90 transition-colors"
             >
               <Upload className="h-4 w-4" />
@@ -184,6 +191,22 @@ const Index = () => {
           </div>
         </div>
       </header>
+      
+      {/* Hidden file input for header upload button */}
+      <input 
+        type="file" 
+        id="fileInputRef"
+        ref={(el) => {
+          // @ts-ignore - We're setting a global reference to access from click handler
+          window.fileInputRef = el;
+        }}
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleFileSelected(e.target.files[0]);
+          }
+        }}
+      />
       
       {/* Landing Page Sections */}
       <HeroSection />
@@ -203,11 +226,11 @@ const Index = () => {
               <h2 className="text-2xl font-bold text-white">EzyShare</h2>
             </div>
             
-            <div className="flex gap-8 mb-8">
-              <Link to="/" className="text-white/80 hover:text-white transition-colors">Home</Link>
+            <div className="flex flex-wrap gap-4 md:gap-8 mb-8 justify-center">
+              <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">Home</a>
               <Link to="/receive" className="text-white/80 hover:text-white transition-colors">Receive Files</Link>
-              <a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="text-white/80 hover:text-white transition-colors">How It Works</a>
+              <a href="#features" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">Features</a>
+              <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">How It Works</a>
             </div>
             
             <div className="flex items-center gap-2 mb-2 text-white/80">
