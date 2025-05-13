@@ -2,9 +2,8 @@
 import { useState, useRef, DragEvent, ChangeEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { isFileSizeValid, formatFileSize } from "@/lib/fileUtils";
-import { Upload, File } from "lucide-react";
+import { Upload, File, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FileUploaderProps {
@@ -66,27 +65,35 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
     fileInputRef.current?.click();
   };
 
+  const removeFile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
-    <Card className="w-full max-w-md">
-      <CardContent className="pt-6">
-        <div
-          className={`drop-area border-2 border-dashed rounded-xl p-8 text-center transition-all ${
-            isDragging ? "active border-ezy-purple bg-ezy-purple/5" : "border-gray-200"
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={triggerFileInput}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          
+    <div className="w-full">
+      <div
+        className={`drop-area border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+          isDragging ? "border-ezy-purple bg-ezy-purple/5" : selectedFile ? "border-ezy-darkPurple/40" : "border-gray-200 hover:border-ezy-purple/50 hover:bg-ezy-purple/5"
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={triggerFileInput}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        
+        {!selectedFile ? (
           <div className="flex flex-col items-center justify-center gap-3">
-            <div className="rounded-full bg-ezy-purple/10 p-3">
+            <div className="rounded-full bg-ezy-purple/10 p-3 transition-all group-hover:bg-ezy-purple/20">
               <Upload className="h-6 w-6 text-ezy-purple" />
             </div>
             <div className="space-y-2">
@@ -98,31 +105,30 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
               </p>
             </div>
           </div>
-        </div>
-
-        {selectedFile && (
-          <div className="mt-4 p-3 bg-ezy-gray/50 rounded-lg flex items-center gap-3">
-            <div className="rounded-full bg-ezy-purple/10 p-2">
-              <File className="h-4 w-4 text-ezy-purple" />
+        ) : (
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-ezy-purple/20 p-2 flex-shrink-0">
+                <File className="h-5 w-5 text-ezy-purple" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium truncate max-w-[200px] md:max-w-[300px]">{selectedFile.name}</p>
+                <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="ml-auto rounded-full hover:bg-red-100 hover:text-red-500"
+                onClick={removeFile}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="flex-1 text-left">
-              <p className="font-medium text-sm truncate">{selectedFile.name}</p>
-              <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
-            </div>
+            <p className="text-xs text-ezy-purple mt-3">Click to change file</p>
           </div>
         )}
-
-        <div className="mt-4">
-          <Button
-            onClick={triggerFileInput}
-            variant="outline"
-            className="w-full"
-          >
-            Select a different file
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
