@@ -1,39 +1,45 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 20% 98%;
-    --foreground: 240 10% 3.9%;
+    --background: 39 38% 97%;     /* Floral White #FFFCF2 */
+    --foreground: 30 5% 15%;      /* Eerie Black #252422 */ 
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 30 5% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 30 5% 15%;
 
-    --primary: 255 84% 75%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 17 81% 54%;        /* Flame #EB5E28 */
+    --primary-foreground: 39 38% 97%;
 
-    --secondary: 252 26% 54%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 33 7% 76%;       /* Timberwolf #CCC5B9 */
+    --secondary-foreground: 30 5% 15%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 33 7% 76%;
+    --muted-foreground: 30 5% 25%;
 
-    --accent: 24 94% 53%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 17 81% 54%;
+    --accent-foreground: 39 38% 97%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 255 84% 75%;
+    --border: 33 7% 76%;
+    --input: 33 7% 76%;
+    --ring: 17 81% 54%;
 
     --radius: 0.75rem;
+    
+    /* Custom EzyShare colors */
+    --floral-white: #FFFCF2;
+    --timberwolf: #CCC5B9;
+    --black-olive: #403D39;
+    --eerie-black: #252422;
+    --flame: #EB5E28;
   }
 }
 
@@ -56,6 +62,30 @@
   .ezy-gradient {
     @apply bg-gradient-to-br from-ezy-purple via-ezy-darkPurple to-ezy-tertiaryPurple;
   }
+
+  .flame-gradient {
+    @apply bg-gradient-to-br from-[#EB5E28] to-[#F27D52];
+  }
+  
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold mb-6 text-[#252422];
+  }
+  
+  .section-subtitle {
+    @apply text-xl text-[#403D39] mb-12 max-w-2xl mx-auto;
+  }
+  
+  .feature-card {
+    @apply bg-white p-6 rounded-xl shadow-md border border-[#CCC5B9]/30 hover:shadow-lg transition-all duration-300;
+  }
+  
+  .testimonial-card {
+    @apply bg-white p-6 rounded-xl shadow-md border border-[#CCC5B9]/30;
+  }
 }
 
 #root {
@@ -71,11 +101,11 @@
 }
 
 .drop-area.active {
-  border-color: theme('colors.ezy.purple');
-  background-color: rgba(155, 135, 245, 0.1);
+  border-color: var(--flame);
+  background-color: rgba(235, 94, 40, 0.1);
 }
 
-/* New animations */
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -84,6 +114,16 @@
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes pulse {
@@ -100,9 +140,23 @@
   animation: slideUp 0.6s ease-out forwards;
 }
 
+.animate-slide-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
 .animate-pulse-slow {
   animation: pulse 2s infinite;
 }
+
+/* Staggered animations for children */
+.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
 
 /* Modern scrollbar */
 ::-webkit-scrollbar {

@@ -62,6 +62,13 @@ export default {
 					blue: '#33C3F0',
 					gray: '#F1F0FB',
 					darkBackground: '#1A1F2C',
+				},
+				ezyshare: {
+					floralWhite: '#FFFCF2',
+					timberwolf: '#CCC5B9',
+					blackOlive: '#403D39',
+					eerieBlack: '#252422',
+					flame: '#EB5E28',
 				}
 			},
 			borderRadius: {
