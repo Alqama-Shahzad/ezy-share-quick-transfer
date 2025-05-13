@@ -1,73 +1,90 @@
-# Welcome to your Lovable project
+# EzyShare - Simple & Secure File Sharing
 
-## Project info
+EzyShare is a modern web application that allows users to share files quickly and securely without requiring user accounts or complicated setup.
 
-**URL**: https://lovable.dev/projects/029ebc3c-6165-4834-b918-ae5f7dd119a2
+## Features
 
-## How can I edit this code?
+- **Easy File Sharing** - Upload files up to 25MB and share them instantly
+- **Secure PIN Protection** - Files are protected with a 6-digit PIN code
+- **QR Code Sharing** - Easily share download links via QR codes
+- **End-to-End Encryption** - Files are securely transmitted and stored
+- **No Registration Required** - Start sharing immediately without accounts
+- **Modern Interface** - Clean, responsive design works on all devices
+- **7-Day Auto-Expiry** - Files are automatically removed after 7 days
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- React with TypeScript
+- Vite for fast development and building
+- Tailwind CSS for styling
+- Supabase for backend storage and file handling
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/029ebc3c-6165-4834-b918-ae5f7dd119a2) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v18 or higher recommended)
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/ezy-share-quick-transfer.git
+   cd ezy-share-quick-transfer
+   ```
 
-Follow these steps:
+2. Install dependencies
+   ```
+   npm install
+   # or
+   yarn install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Set up environment variables
+   Create a `.env` file in the root directory with your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_KEY=your_supabase_anon_key
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Run the development server
+   ```
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+5. Build for production
+   ```
+   npm run build
+   # or
+   yarn build
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Deployment
 
-**Edit a file directly in GitHub**
+The project can be deployed to any static site hosting service:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Build the project: `npm run build`
+2. Upload the contents of the `dist` folder to your hosting service
+3. Ensure you've set up the necessary Supabase security policies
 
-**Use GitHub Codespaces**
+## Setting Up Supabase
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Create a new Supabase project
+2. Create a `file_shares` table with the necessary columns
+3. Enable Row Level Security (RLS) and set up appropriate policies
+4. Create a storage bucket for file uploads
 
-## What technologies are used for this project?
+## License
 
-This project is built with:
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Author
 
-## How can I deploy this project?
+Created by Alqama-Dev 
 
-Simply open [Lovable](https://lovable.dev/projects/029ebc3c-6165-4834-b918-ae5f7dd119a2) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+ Before deploying, be sure to generate favicon files as specified in the index.html metadata.

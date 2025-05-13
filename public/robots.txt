@@ -1,3 +1,8 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Specific crawler rules
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +15,6 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Sitemap location
+# Uncomment and update when you have a domain
+# Sitemap: https://ezyshare.com/sitemap.xml

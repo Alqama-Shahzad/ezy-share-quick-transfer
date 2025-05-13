@@ -48,6 +48,10 @@
     @apply border-border;
   }
 
+  html, body {
+    @apply overflow-x-hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -68,7 +72,7 @@
   }
   
   .section-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24;
+    @apply max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 w-full;
   }
   
   .section-title {
@@ -175,4 +179,46 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: theme('colors.ezy.darkPurple');
+}
+
+/* Additional responsive utilities for xs breakpoint */
+@media (max-width: 374px) {
+  .xs-hidden {
+    display: none;
+  }
+  
+  .xs-flex-col {
+    flex-direction: column;
+  }
+  
+  .xs-text-center {
+    text-align: center;
+  }
+  
+  .xs-text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .xs-w-full {
+    width: 100%;
+  }
+  
+  .xs-px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .xs-py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  
+  .xs-mb-1 {
+    margin-bottom: 0.25rem;
+  }
+  
+  .xs-gap-1 {
+    gap: 0.25rem;
+  }
 }

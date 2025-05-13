@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
 import FileDownloader from "@/components/FileDownloader";
 import { useToast } from "@/hooks/use-toast";
 import { getFileInfo, verifyFilePin } from "@/lib/fileService";
 import { FileShare } from "@/lib/types";
+import { Flame, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Download = () => {
   const { fileId } = useParams<{ fileId: string }>();
@@ -15,6 +16,7 @@ const Download = () => {
   const [fileInfo, setFileInfo] = useState<FileShare | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFileInfo = async () => {
@@ -91,23 +93,34 @@ const Download = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-radial from-white to-ezy-gray flex flex-col">
-      <header className="p-6 flex justify-center">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-ezy-purple rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">E</span>
+    <div className="min-h-screen bg-gradient-to-br from-white via-ezyshare-timberwolf/10 to-ezyshare-timberwolf/20 flex flex-col">
+      <header className="p-4 sm:p-6 flex justify-between items-center container mx-auto">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all">
+            <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-ezy-darkBackground">EzyShare</h1>
-        </div>
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-br from-ezyshare-flame to-orange-500 bg-clip-text text-transparent">
+            EzyShare
+          </h1>
+        </Link>
+        
+        <Button
+          variant="outline"
+          onClick={() => navigate("/?showUpload=true")}
+          className="border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10 hover:text-black transition-colors"
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Upload a File
+        </Button>
       </header>
       
-      <main className="flex-1 container mx-auto flex items-center justify-center p-4">
+      <main className="flex-1 container mx-auto flex items-center justify-center px-4 py-2 sm:py-4">
         {loading ? (
           <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-ezy-purple border-r-transparent" role="status">
+            <div className="inline-block h-6 w-6 sm:h-8 sm:w-8 animate-spin rounded-full border-3 sm:border-4 border-solid border-ezyshare-flame border-r-transparent" role="status">
               <span className="sr-only">Loading...</span>
             </div>
-            <p className="mt-2 text-gray-600">Loading file information...</p>
+            <p className="mt-2 text-sm sm:text-base text-ezyshare-blackOlive">Loading file information...</p>
           </div>
         ) : (
           <FileDownloader
@@ -123,8 +136,9 @@ const Download = () => {
         )}
       </main>
       
-      <footer className="py-4 text-center text-sm text-gray-500">
-        <p>&copy; 2025 EzyShare. All rights reserved.</p>
+      <footer className="py-4 sm:py-6 text-center">
+        <p className="text-xs sm:text-sm text-ezyshare-blackOlive mb-1">&copy; 2025 EzyShare. All rights reserved.</p>
+        <p className="text-xs text-ezyshare-flame">Created by Alqama-Dev</p>
       </footer>
     </div>
   );

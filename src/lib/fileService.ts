@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { FileShare, FileUploadResponse, FileDownloadResponse } from "./types";
 
@@ -92,10 +91,15 @@ export async function verifyFilePin(fileId: string, enteredPin: string): Promise
     let downloadUrl = null;
     
     if (verified) {
-      // Get download URL from Supabase Storage
+      // Get download URL from Supabase Storage with download options
       const { data } = await supabase.storage
         .from('file_shares')
-        .createSignedUrl(fileInfo.storage_path, 60); // URL expires in 60 seconds
+        .createSignedUrl(fileInfo.storage_path, 60, {
+          download: fileInfo.original_name, // Force download with original filename
+          transform: {
+            // No transformations needed
+          }
+        });
         
       if (data) {
         downloadUrl = data.signedUrl;
@@ -109,5 +113,28 @@ export async function verifyFilePin(fileId: string, enteredPin: string): Promise
   } catch (error) {
     console.error('Error verifying PIN:', error);
     throw error;
+  }
+}
+
+// Find file by PIN code
+export async function findFileByPin(pinCode: string): Promise<FileShare | null> {
+  try {
+    const { data, error } = await supabase
+      .from('file_shares')
+      .select('*')
+      .eq('pin_code', pinCode)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+      
+    if (error) {
+      console.error('Error finding file by PIN:', error);
+      return null;
+    }
+    
+    return data as FileShare;
+  } catch (error) {
+    console.error('Error finding file by PIN:', error);
+    return null;
   }
 }
