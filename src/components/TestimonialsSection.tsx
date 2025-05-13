@@ -4,19 +4,19 @@ import { Star, User } from "lucide-react";
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Marketing Director",
+      name: "Sahil Kumar",
+      role: "Web Developer",
       comment: "EzyShare has been a lifesaver for sharing files with clients quickly without the hassle of accounts and passwords.",
       rating: 5
     },
     {
-      name: "Michael Chen",
-      role: "Freelance Designer",
+      name: "M.kumail",
+      role: "Freelance Developer",
       comment: "The QR code feature makes sending large design files to clients incredibly simple. Great security with the PIN protection too!",
       rating: 5
     },
     {
-      name: "Priya Sharma",
+      name: "Anees Akram",
       role: "Project Manager",
       comment: "My team uses EzyShare daily. The simplicity and security are perfect for our fast-paced environment.",
       rating: 4
