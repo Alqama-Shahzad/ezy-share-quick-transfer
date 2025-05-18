@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import FileUploader from "@/components/FileUploader";
+import TextInput from "@/components/TextInput";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
-import { uploadFile } from "@/lib/fileService";
+import { uploadFile, shareText } from "@/lib/fileService";
 import { useToast } from "@/hooks/use-toast";
-import { FileUploadResponse } from "@/lib/types";
-import { Flame, Download, Upload, Shield, Sparkles } from "lucide-react";
+import { FileUploadResponse, TextShareResponse } from "@/lib/types";
+import { Flame, Download, Upload, Shield, Sparkles, MessageSquare } from "lucide-react";
 
 // Import our section components
 import HeroSection from "@/components/HeroSection";
@@ -20,29 +22,74 @@ const Index = () => {
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [showUploadInterface, setShowUploadInterface] = useState(false);
-  const [uploadResponse, setUploadResponse] = useState<FileUploadResponse | null>(null);
+  const [uploadResponse, setUploadResponse] = useState<FileUploadResponse | TextShareResponse | null>(null);
+  const [isTextMode, setIsTextMode] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  // Check for showUpload query parameter on component mount
+  // Check URL parameters on component mount
   useEffect(() => {
     const showUpload = searchParams.get('showUpload');
+    const showText = searchParams.get('showText');
+    const showResult = searchParams.get('showResult');
+    
     if (showUpload === 'true') {
       setShowUploadInterface(true);
+      setIsTextMode(false);
       // Trigger file input dialog after a short delay to ensure component is mounted
       setTimeout(() => {
         if (fileInputRef.current) {
           fileInputRef.current.click();
         }
       }, 500);
+    } else if (showText === 'true') {
+      setShowUploadInterface(true);
+      setIsTextMode(true);
+    } else if (showResult === 'true') {
+      // Try to restore from session storage if we have upload results
+      const savedResponse = sessionStorage.getItem('uploadResponse');
+      if (savedResponse) {
+        try {
+          setUploadResponse(JSON.parse(savedResponse));
+          setUploaded(true);
+          setShowUploadInterface(true);
+          setIsTextMode(sessionStorage.getItem('isTextMode') === 'true');
+        } catch (error) {
+          console.error('Error restoring upload state:', error);
+        }
+      }
     }
   }, [searchParams]);
+
+  // Update URL when state changes
+  useEffect(() => {
+    if (uploaded && uploadResponse) {
+      // Save results to session storage for restoration on refresh
+      sessionStorage.setItem('uploadResponse', JSON.stringify(uploadResponse));
+      sessionStorage.setItem('isTextMode', isTextMode.toString());
+      setSearchParams({ showResult: 'true' });
+    } else if (showUploadInterface) {
+      if (isTextMode) {
+        setSearchParams({ showText: 'true' });
+      } else {
+        setSearchParams({ showUpload: 'true' });
+      }
+    } else {
+      // Clear session storage when returning to homepage
+      sessionStorage.removeItem('uploadResponse');
+      sessionStorage.removeItem('isTextMode');
+      setSearchParams({});
+    }
+  }, [showUploadInterface, isTextMode, uploaded, uploadResponse, setSearchParams]);
 
   const handleFileSelected = (selectedFile: File) => {
     setFile(selectedFile);
     setUploaded(false);
     setShowUploadInterface(true);
+    setIsTextMode(false);
+    setSearchParams({ showUpload: 'true' });
   };
 
   const handleUpload = async () => {
@@ -77,10 +124,42 @@ const Index = () => {
     }
   };
 
+  const handleTextSubmit = async (text: string) => {
+    setUploading(true);
+    
+    try {
+      toast({
+        title: "Sharing text...",
+        description: "Please wait while we process your text",
+      });
+      
+      const response = await shareText(text);
+      
+      setUploadResponse(response);
+      setUploaded(true);
+      
+      toast({
+        title: "Text shared successfully!",
+        description: "Your text is now ready to be shared",
+      });
+    } catch (error) {
+      console.error("Error sharing text:", error);
+      toast({
+        title: "Sharing failed",
+        description: "There was an error sharing your text. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleReset = () => {
     setFile(null);
     setUploaded(false);
     setUploadResponse(null);
+    setIsTextMode(false);
+    setSearchParams({ showUpload: 'true' });
     setTimeout(() => {
       if (fileInputRef.current) {
         fileInputRef.current.click();
@@ -90,12 +169,32 @@ const Index = () => {
 
   const handleShowUploadInterface = () => {
     setShowUploadInterface(true);
+    setIsTextMode(false);
+    setSearchParams({ showUpload: 'true' });
     // Wait for state to update, then trigger file dialog
     setTimeout(() => {
       if (fileInputRef.current) {
         fileInputRef.current.click();
       }
     }, 100);
+  };
+
+  const handleShowTextInterface = () => {
+    setShowUploadInterface(true);
+    setIsTextMode(true);
+    setFile(null);
+    setSearchParams({ showText: 'true' });
+  };
+
+  const returnToHome = () => {
+    setFile(null);
+    setUploaded(false);
+    setUploadResponse(null);
+    setShowUploadInterface(false);
+    setIsTextMode(false);
+    sessionStorage.removeItem('uploadResponse');
+    sessionStorage.removeItem('isTextMode');
+    navigate('/');
   };
 
   // If a file is being uploaded or has been uploaded, or if we want to show upload interface, show the upload UI
@@ -106,11 +205,7 @@ const Index = () => {
         <header className="p-4 sm:p-6 flex justify-between items-center container mx-auto">
           <Link to="/" className="flex items-center gap-2" onClick={(e) => {
             e.preventDefault();
-            setFile(null);
-            setUploaded(false);
-            setUploadResponse(null);
-            setShowUploadInterface(false);
-            window.history.pushState({}, '', '/');
+            returnToHome();
           }}>
             <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all">
               <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -121,13 +216,7 @@ const Index = () => {
           </Link>
           
           <button 
-            onClick={() => {
-              setFile(null);
-              setUploaded(false);
-              setUploadResponse(null);
-              setShowUploadInterface(false);
-              window.history.pushState({}, '', '/');
-            }}
+            onClick={returnToHome}
             className="text-ezyshare-blackOlive hover:text-ezyshare-flame text-sm sm:text-base flex items-center gap-1 transition-colors"
           >
             ← Return to Home
@@ -139,41 +228,92 @@ const Index = () => {
             {!uploaded ? (
               <>
                 <div className="glass-card p-4 sm:p-6 rounded-2xl shadow-xl border border-ezyshare-timberwolf/30">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-ezyshare-eerieBlack">Upload Your File</h2>
-                  <FileUploader onFileSelected={handleFileSelected} />
-                
-                  {file && (
-                    <div className="mt-3 sm:mt-4">
-                      <Button
-                        onClick={handleUpload}
-                        disabled={uploading}
-                        className="w-full bg-ezyshare-flame hover:bg-ezyshare-flame/90 hover:text-black text-white shadow-md flex items-center justify-center gap-2 py-4 sm:py-6 mb-3 transition-colors"
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-ezyshare-eerieBlack">
+                    Share Content
+                  </h2>
+                  
+                  <Tabs defaultValue={isTextMode ? "text" : "file"} onValueChange={(value) => {
+                    setIsTextMode(value === "text");
+                    if (value === "file") {
+                      setSearchParams({ showUpload: 'true' });
+                      setTimeout(() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        }
+                      }, 100);
+                    } else {
+                      setSearchParams({ showText: 'true' });
+                    }
+                  }}>
+                    <TabsList className="w-full mb-4 bg-ezyshare-timberwolf/20 p-1 rounded-xl">
+                      <TabsTrigger 
+                        value="file" 
+                        className="flex-1 data-[state=active]:bg-ezyshare-flame data-[state=active]:text-white transition-all rounded-lg py-2.5"
                       >
-                        {uploading ? (
-                          <>
-                            <div className="animate-spin h-4 w-4 border-2 border-white border-r-transparent rounded-full mr-2" />
-                            Uploading...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="h-4 w-4" />
-                            Upload File
-                          </>
-                        )}
-                      </Button>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload File
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="text" 
+                        className="flex-1 data-[state=active]:bg-ezyshare-flame data-[state=active]:text-white transition-all rounded-lg py-2.5"
+                      >
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Share Text
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="file" className="mt-0">
+                      <FileUploader onFileSelected={handleFileSelected} />
+                      
+                      {file && (
+                        <div className="mt-3 sm:mt-4">
+                          <Button
+                            onClick={handleUpload}
+                            disabled={uploading}
+                            className="w-full bg-ezyshare-flame hover:bg-ezyshare-flame/90 hover:text-black text-white shadow-md flex items-center justify-center gap-2 py-4 sm:py-6 mb-3 transition-colors"
+                          >
+                            {uploading ? (
+                              <>
+                                <div className="animate-spin h-4 w-4 border-2 border-white border-r-transparent rounded-full mr-2" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="h-4 w-4" />
+                                Upload File
+                              </>
+                            )}
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            onClick={returnToHome}
+                            className="w-full mt-3 border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10 hover:text-black transition-colors"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {!file && (
+                        <p className="text-center text-sm text-ezyshare-blackOlive/70 mt-4">
+                          Select a file above or drag and drop to upload
+                        </p>
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="text" className="mt-0">
+                      <TextInput onTextSubmit={handleTextSubmit} isSubmitting={uploading} />
                       
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          setFile(null);
-                          setShowUploadInterface(false);
-                        }}
-                        className="w-full border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10 hover:text-black transition-colors"
+                        onClick={returnToHome}
+                        className="w-full mt-3 border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10 hover:text-black transition-colors"
                       >
-                        Cancel & Return to Home
+                        Cancel
                       </Button>
-                    </div>
-                  )}
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </>
             ) : uploadResponse && (
@@ -189,7 +329,7 @@ const Index = () => {
                     variant="outline"
                     className="w-full sm:flex-1 border-ezyshare-flame text-ezyshare-flame hover:bg-ezyshare-flame/10 hover:text-black transition-colors"
                   >
-                    Upload Another File
+                    {isTextMode ? "Share Another Text" : "Upload Another File"}
                   </Button>
                   
                   <Link to="/receive" className="w-full sm:flex-1">
@@ -226,11 +366,7 @@ const Index = () => {
             className="flex items-center gap-2"
             onClick={(e) => {
               e.preventDefault();
-              setFile(null);
-              setUploaded(false);
-              setUploadResponse(null);
-              setShowUploadInterface(false);
-              window.history.pushState({}, '', '/');
+              returnToHome();
             }}
           >
             <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center shadow-md">
@@ -249,70 +385,60 @@ const Index = () => {
               <Download className="h-4 w-4" />
               Receive
             </Link>
-            <button 
+            
+            <Button 
               onClick={handleShowUploadInterface}
-              className="px-3 sm:px-5 py-1.5 sm:py-2 bg-ezyshare-flame text-white rounded-full flex items-center gap-1 hover:bg-ezyshare-flame/90 transition-colors text-sm sm:text-base"
+              className="bg-ezyshare-flame hover:bg-ezyshare-flame/90 text-white"
             >
-              <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden xs:inline">Upload</span>
-            </button>
+              <Upload className="mr-2 h-4 w-4" />
+              Share Content
+            </Button>
           </div>
         </div>
       </header>
-      
-      {/* Hidden file input for header upload button */}
-      <input 
-        type="file" 
-        ref={fileInputRef}
-        className="hidden"
-        onChange={(e) => {
-          if (e.target.files && e.target.files[0]) {
-            handleFileSelected(e.target.files[0]);
-          }
-        }}
-      />
-      
-      {/* Landing Page Sections */}
-      <HeroSection onShowUploadInterface={handleShowUploadInterface} />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <TestimonialsSection />
-      <CTASection onShowUploadInterface={handleShowUploadInterface} />
+
+      {/* Main content */}
+      <main className="flex-1">
+        {/* Hero Section */}
+        <HeroSection onUploadClick={handleShowUploadInterface} />
+        
+        {/* How It Works Section */}
+        <HowItWorksSection />
+        
+        {/* Features Section */}
+        <FeaturesSection />
+        
+        {/* Testimonials Section */}
+        <TestimonialsSection />
+        
+        {/* CTA Section */}
+        <CTASection onUploadClick={handleShowUploadInterface} />
+      </main>
       
       {/* Footer */}
-      <footer className="bg-ezyshare-eerieBlack text-white py-10">
+      <footer className="bg-white py-6 sm:py-8 border-t border-gray-100">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-2 mb-6">
-              <Link to="/" className="flex items-center gap-2" onClick={(e) => {
-                e.preventDefault();
-                setFile(null);
-                setUploaded(false);
-                setUploadResponse(null);
-                setShowUploadInterface(false);
-                window.history.pushState({}, '', '/');
-              }}>
-                <div className="h-10 w-10 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center">
-                  <Flame className="h-6 w-6 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-white">EzyShare</h2>
-              </Link>
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <div className="flex items-center mb-4 sm:mb-0">
+              <div className="h-8 w-8 bg-gradient-to-br from-ezyshare-flame to-orange-500 rounded-xl flex items-center justify-center shadow-md mr-2">
+                <Flame className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-br from-ezyshare-flame to-orange-500 bg-clip-text text-transparent">
+                EzyShare
+              </span>
             </div>
             
-            <div className="flex flex-wrap gap-4 md:gap-8 mb-8 justify-center">
-              <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">Home</a>
-              <Link to="/receive" className="text-white/80 hover:text-white transition-colors">Receive Files</Link>
-              <a href="#features" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-white/80 hover:text-white transition-colors">How It Works</a>
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
+              <Link to="/" className="text-sm text-ezyshare-blackOlive hover:text-ezyshare-flame transition-colors">Home</Link>
+              <Link to="/receive" className="text-sm text-ezyshare-blackOlive hover:text-ezyshare-flame transition-colors">Receive Files</Link>
+              <a href="#features" className="text-sm text-ezyshare-blackOlive hover:text-ezyshare-flame transition-colors">Features</a>
+              <a href="#how-it-works" className="text-sm text-ezyshare-blackOlive hover:text-ezyshare-flame transition-colors">How It Works</a>
             </div>
-            
-            <div className="flex items-center gap-2 mb-2 text-white/80">
-              <Shield className="h-4 w-4 text-ezyshare-flame" />
-              <span>Secure, End-to-End Encrypted File Transfers</span>
-            </div>
-            
-            <p className="text-white/60 mb-1">&copy; 2025 EzyShare. All rights reserved.</p>
-            <p className="text-ezyshare-flame">Created by Alqama-Dev</p>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <p className="text-xs sm:text-sm text-ezyshare-blackOlive mb-1">&copy; 2025 EzyShare. All rights reserved.</p>
+            <p className="text-xs text-ezyshare-flame">Created by Alqama-Dev</p>
           </div>
         </div>
       </footer>

@@ -1,4 +1,3 @@
-
 // Custom types for our application
 export interface FileShare {
   id: string;
@@ -10,6 +9,8 @@ export interface FileShare {
   created_at: string;
   expires_at: string;
   download_count: number;
+  is_text?: boolean;
+  text_content?: string;
 }
 
 export interface FileUploadResponse {
@@ -18,10 +19,19 @@ export interface FileUploadResponse {
   pinCode: string;
   originalName: string;
   fileSize: number;
+  isText?: boolean;
+  textContent?: string;
 }
 
 export interface FileDownloadResponse {
   fileInfo: FileShare | null;
   downloadUrl: string | null;
   verified: boolean;
+}
+
+export interface TextShareResponse {
+  fileId: string;
+  downloadUrl: string;
+  pinCode: string;
+  textContent: string;
 }

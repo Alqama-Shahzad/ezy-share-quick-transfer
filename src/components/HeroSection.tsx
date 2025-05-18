@@ -1,12 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FileIcon, Send, Download, Lock, Shield } from "lucide-react";
+import { FileIcon, Send, Download, Lock, Shield, MessageSquare } from "lucide-react";
 
 interface HeroSectionProps {
-  onShowUploadInterface: () => void;
+  onUploadClick: () => void;
+  onTextClick?: () => void;
 }
 
-const HeroSection = ({ onShowUploadInterface }: HeroSectionProps) => {
+const HeroSection = ({ onUploadClick }: HeroSectionProps) => {
   return (
     <section className="bg-ezyshare-floralWhite py-8 sm:py-12 lg:py-20 overflow-hidden" id="hero">
       <div className="section-container px-4 sm:px-6 md:px-8">
@@ -14,23 +15,23 @@ const HeroSection = ({ onShowUploadInterface }: HeroSectionProps) => {
           {/* Left content */}
           <div className="flex-1 text-center lg:text-left animate-slide-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-ezyshare-eerieBlack">
-              Share files with
+              Share files & text with
               <span className="text-ezyshare-flame block mt-1">ultimate simplicity</span>
             </h1>
             
             <p className="text-ezyshare-blackOlive text-base sm:text-lg md:text-xl max-w-lg mx-auto lg:mx-0 mb-6 sm:mb-8">
-              Upload any file up to 25MB and share it instantly with a QR code and PIN.
+              Upload files up to 25MB or share text messages instantly with a QR code and PIN.
               No registration required, end-to-end encrypted.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start flex-wrap gap-4 mb-6 sm:mb-8">
               <button 
-                onClick={onShowUploadInterface}
+                onClick={onUploadClick}
                 className="px-5 sm:px-6 py-3 rounded-full bg-ezyshare-flame text-white flex items-center justify-center sm:justify-start gap-2 
                   shadow-lg hover:shadow-xl hover:bg-ezyshare-flame/90 transition-all w-full sm:w-auto"
               >
                 <Send className="h-5 w-5" />
-                Upload File
+                Share Content
               </button>
               <Link 
                 to="/receive" 
@@ -38,7 +39,7 @@ const HeroSection = ({ onShowUploadInterface }: HeroSectionProps) => {
                   text-ezyshare-eerieBlack flex items-center justify-center sm:justify-start gap-2 shadow-md hover:bg-ezyshare-timberwolf/20 transition-all w-full sm:w-auto"
               >
                 <Download className="h-5 w-5" />
-                Receive File
+                Receive Files
               </Link>
             </div>
             

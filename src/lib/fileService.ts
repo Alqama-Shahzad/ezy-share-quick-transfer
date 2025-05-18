@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { FileShare, FileUploadResponse, FileDownloadResponse } from "./types";
+import { FileShare, FileUploadResponse, FileDownloadResponse, TextShareResponse } from "./types";
 
 // Upload a file to Supabase storage and create a record in the database
 export async function uploadFile(file: File): Promise<FileUploadResponse> {
@@ -91,21 +91,27 @@ export async function verifyFilePin(fileId: string, enteredPin: string): Promise
     let downloadUrl = null;
     
     if (verified) {
-      // Get download URL from Supabase Storage with download options
-      const { data } = await supabase.storage
-        .from('file_shares')
-        .createSignedUrl(fileInfo.storage_path, 60, {
-          download: fileInfo.original_name, // Force download with original filename
-          transform: {
-            // No transformations needed
-          }
-        });
-        
-      if (data) {
-        downloadUrl = data.signedUrl;
-        
-        // Increment download count
+      // For text content, we don't need a storage URL
+      if (fileInfo.is_text) {
+        // Just increment download count
         await supabase.rpc('increment_download_count', { file_id: fileId });
+      } else {
+        // Get download URL from Supabase Storage with download options
+        const { data } = await supabase.storage
+          .from('file_shares')
+          .createSignedUrl(fileInfo.storage_path, 60, {
+            download: fileInfo.original_name, // Force download with original filename
+            transform: {
+              // No transformations needed
+            }
+          });
+          
+        if (data) {
+          downloadUrl = data.signedUrl;
+          
+          // Increment download count
+          await supabase.rpc('increment_download_count', { file_id: fileId });
+        }
       }
     }
     
@@ -136,5 +142,49 @@ export async function findFileByPin(pinCode: string): Promise<FileShare | null> 
   } catch (error) {
     console.error('Error finding file by PIN:', error);
     return null;
+  }
+}
+
+// Share text content (no actual file, just text)
+export async function shareText(textContent: string): Promise<TextShareResponse> {
+  try {
+    // Generate a 6-digit PIN code
+    const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Generate a dummy storage path for text messages
+    const dummyPath = `text_messages/${crypto.randomUUID()}.txt`;
+    
+    // Create a record in the database
+    const { data: fileData, error: dbError } = await supabase
+      .from('file_shares')
+      .insert({
+        original_name: 'text_message.txt',
+        size_bytes: new Blob([textContent]).size,
+        content_type: 'text/plain',
+        storage_path: dummyPath, // Use dummy path instead of null
+        pin_code: pinCode,
+        is_text: true,
+        text_content: textContent
+      })
+      .select('id')
+      .single();
+      
+    if (dbError) {
+      throw new Error(`Database error: ${dbError.message}`);
+    }
+    
+    // Get the download URL
+    const fileId = fileData.id;
+    const downloadUrl = `${window.location.origin}/download/${fileId}`;
+    
+    return {
+      fileId,
+      downloadUrl,
+      pinCode,
+      textContent
+    };
+  } catch (error) {
+    console.error('Error sharing text:', error);
+    throw error;
   }
 }

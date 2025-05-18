@@ -71,7 +71,7 @@ const Download = () => {
         setDownloadUrl(result.downloadUrl);
         toast({
           title: "PIN verified",
-          description: "You can now download the file",
+          description: `You can now ${fileInfo?.is_text ? 'view the text' : 'download the file'}`,
         });
       } else {
         toast({
@@ -120,7 +120,7 @@ const Download = () => {
             <div className="inline-block h-6 w-6 sm:h-8 sm:w-8 animate-spin rounded-full border-3 sm:border-4 border-solid border-ezyshare-flame border-r-transparent" role="status">
               <span className="sr-only">Loading...</span>
             </div>
-            <p className="mt-2 text-sm sm:text-base text-ezyshare-blackOlive">Loading file information...</p>
+            <p className="mt-2 text-sm sm:text-base text-ezyshare-blackOlive">Loading information...</p>
           </div>
         ) : (
           <FileDownloader
@@ -132,6 +132,8 @@ const Download = () => {
             onPinSubmit={handlePinSubmit}
             loading={verifying}
             verified={verified}
+            isText={fileInfo?.is_text || false}
+            textContent={fileInfo?.text_content || ""}
           />
         )}
       </main>
