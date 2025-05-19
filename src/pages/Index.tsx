@@ -321,6 +321,7 @@ const Index = () => {
                 <QRCodeDisplay 
                   downloadUrl={uploadResponse.downloadUrl} 
                   pinCode={uploadResponse.pinCode} 
+                  expiresAt={uploadResponse.expiresAt}
                 />
                 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Lock, 
   QrCode, 
@@ -7,9 +7,10 @@ import {
   List, 
   Clock 
 } from "lucide-react";
+import useLazyData from "@/hooks/useLazyData";
 
 const FeaturesSection = () => {
-  const features = [
+  const [featuresData, setFeaturesData] = useState([
     {
       icon: <QrCode className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-ezyshare-flame" />,
       title: "QR Code Sharing",
@@ -37,10 +38,26 @@ const FeaturesSection = () => {
     },
     {
       icon: <Clock className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-ezyshare-flame" />,
-      title: "7-Day Expiry",
-      description: "Files automatically expire after 7 days for added security"
+      title: "24-Hour Expiry",
+      description: "Files automatically expire after 24 hours for enhanced security"
     }
-  ];
+  ]);
+
+  // Simulating async data loading with the features data
+  const fetchFeatures = async () => {
+    return new Promise((resolve) => {
+      // Simulate network delay
+      setTimeout(() => {
+        resolve(featuresData);
+      }, 100);
+    });
+  };
+
+  // Using the lazy data loading hook
+  const { data: lazyFeatures, loading, triggerRef } = useLazyData(fetchFeatures, {
+    threshold: 0.1,
+    rootMargin: '100px 0px',
+  });
 
   return (
     <section className="bg-ezyshare-floralWhite py-10 sm:py-12 md:py-16 overflow-hidden" id="features">
@@ -50,20 +67,38 @@ const FeaturesSection = () => {
           EzyShare combines security, simplicity, and convenience to give you the best file sharing experience.
         </p>
         
+        {/* This div serves as the trigger for lazy loading */}
+        <div ref={triggerRef as React.RefObject<HTMLDivElement>} className="h-4"></div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-8 sm:mt-12 stagger-animation">
-          {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="feature-card p-4 sm:p-6 animate-fade-in hover:border-ezyshare-flame/30 group"
-            >
-              <div className="bg-ezyshare-flame/10 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-ezyshare-flame/20 transition-all">
-                {feature.icon}
+          {loading ? (
+            // Show skeleton loaders while loading
+            Array.from({ length: 6 }).map((_, index) => (
+              <div 
+                key={index} 
+                className="feature-card p-4 sm:p-6 animate-pulse"
+              >
+                <div className="bg-gray-200 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl mb-3 sm:mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded w-2/3 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                <div className="h-4 bg-gray-200 rounded w-4/5"></div>
               </div>
-              
-              <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-ezyshare-eerieBlack">{feature.title}</h3>
-              <p className="text-sm sm:text-base text-ezyshare-blackOlive">{feature.description}</p>
-            </div>
-          ))}
+            ))
+          ) : (
+            (lazyFeatures || featuresData).map((feature, index) => (
+              <div 
+                key={index} 
+                className="feature-card p-4 sm:p-6 animate-fade-in hover:border-ezyshare-flame/30 group"
+              >
+                <div className="bg-ezyshare-flame/10 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-ezyshare-flame/20 transition-all">
+                  {feature.icon}
+                </div>
+                
+                <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-ezyshare-eerieBlack">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-ezyshare-blackOlive">{feature.description}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>

@@ -1,6 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { FileShare, FileUploadResponse, FileDownloadResponse, TextShareResponse } from "./types";
 
+// Calculate expiration date (1 day from now)
+function getExpirationDate(): string {
+  const date = new Date();
+  date.setDate(date.getDate() + 1); // Add 1 day
+  return date.toISOString();
+}
+
 // Upload a file to Supabase storage and create a record in the database
 export async function uploadFile(file: File): Promise<FileUploadResponse> {
   try {
@@ -11,6 +18,9 @@ export async function uploadFile(file: File): Promise<FileUploadResponse> {
     
     // Generate a 6-digit PIN code
     const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Calculate expiration date (1 day from now)
+    const expiresAt = getExpirationDate();
     
     // Upload file to Supabase Storage
     const { data: storageData, error: storageError } = await supabase.storage
@@ -30,6 +40,7 @@ export async function uploadFile(file: File): Promise<FileUploadResponse> {
         content_type: file.type,
         storage_path: filePath,
         pin_code: pinCode,
+        expires_at: expiresAt // Set expiration date
       })
       .select('id')
       .single();
@@ -48,6 +59,7 @@ export async function uploadFile(file: File): Promise<FileUploadResponse> {
       pinCode,
       originalName: file.name,
       fileSize: file.size,
+      expiresAt: expiresAt // Include expiration in response
     };
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -67,6 +79,17 @@ export async function getFileInfo(fileId: string): Promise<FileShare | null> {
     if (error) {
       console.error('Error fetching file info:', error);
       return null;
+    }
+    
+    // Check if file has expired
+    if (data && data.expires_at) {
+      const now = new Date();
+      const expiryDate = new Date(data.expires_at);
+      
+      if (now > expiryDate) {
+        console.log('This file has expired.');
+        return null;
+      }
     }
     
     return data as FileShare;
@@ -154,6 +177,9 @@ export async function shareText(textContent: string): Promise<TextShareResponse>
     // Generate a dummy storage path for text messages
     const dummyPath = `text_messages/${crypto.randomUUID()}.txt`;
     
+    // Calculate expiration date (1 day from now)
+    const expiresAt = getExpirationDate();
+    
     // Create a record in the database
     const { data: fileData, error: dbError } = await supabase
       .from('file_shares')
@@ -164,7 +190,8 @@ export async function shareText(textContent: string): Promise<TextShareResponse>
         storage_path: dummyPath, // Use dummy path instead of null
         pin_code: pinCode,
         is_text: true,
-        text_content: textContent
+        text_content: textContent,
+        expires_at: expiresAt // Set expiration date
       })
       .select('id')
       .single();
@@ -181,7 +208,8 @@ export async function shareText(textContent: string): Promise<TextShareResponse>
       fileId,
       downloadUrl,
       pinCode,
-      textContent
+      textContent,
+      expiresAt: expiresAt // Include expiration in response
     };
   } catch (error) {
     console.error('Error sharing text:', error);

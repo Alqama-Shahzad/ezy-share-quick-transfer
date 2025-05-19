@@ -11,7 +11,7 @@ const HowItWorksSection = () => {
     {
       icon: <QrCode className="h-12 w-12 text-ezyshare-flame" />,
       title: "Get QR Code & PIN",
-      description: "Receive a unique QR code and PIN for your file. Share these with the intended recipient."
+      description: "Receive a unique QR code and PIN for your file. Files expire after 24 hours for security."
     },
     {
       icon: <Download className="h-12 w-12 text-ezyshare-flame" />,

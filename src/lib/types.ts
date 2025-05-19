@@ -21,6 +21,7 @@ export interface FileUploadResponse {
   fileSize: number;
   isText?: boolean;
   textContent?: string;
+  expiresAt?: string;
 }
 
 export interface FileDownloadResponse {
@@ -34,4 +35,5 @@ export interface TextShareResponse {
   downloadUrl: string;
   pinCode: string;
   textContent: string;
+  expiresAt?: string;
 }

@@ -21,7 +21,7 @@ const HeroSection = ({ onUploadClick }: HeroSectionProps) => {
             
             <p className="text-ezyshare-blackOlive text-base sm:text-lg md:text-xl max-w-lg mx-auto lg:mx-0 mb-6 sm:mb-8">
               Upload files up to 25MB or share text messages instantly with a QR code and PIN.
-              No registration required, end-to-end encrypted.
+              No registration required, end-to-end encrypted. All files expire after 24 hours.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start flex-wrap gap-4 mb-6 sm:mb-8">
